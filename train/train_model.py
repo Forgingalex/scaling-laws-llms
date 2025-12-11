@@ -47,10 +47,10 @@ def validate(model, val_loader, device):
     return total_loss / num_batches
 
 
-def train_model(num_layers=4, hidden_dim=256, num_epochs=3, learning_rate=3e-4, batch_size=32, save_results=True):
+def train_model(num_layers=4, hidden_dim=256, num_epochs=3, learning_rate=3e-4, batch_size=16, block_size=256, save_results=True):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    train_loader, val_loader, tokenizer = get_tiny_shakespeare_loaders(batch_size=batch_size)
+    train_loader, val_loader, tokenizer = get_tiny_shakespeare_loaders(batch_size=batch_size, block_size=block_size)
     vocab_size = tokenizer.vocab_size
     
     model = TinyTransformer(

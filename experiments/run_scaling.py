@@ -41,6 +41,7 @@ def main():
             num_layers=config['layers'],
             hidden_dim=config['hidden_dim'],
             num_epochs=3,
+            batch_size=16,
             save_results=False
         )
         new_results.append(results)
