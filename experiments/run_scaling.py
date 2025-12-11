@@ -40,7 +40,7 @@ def main():
         results = train_model(
             num_layers=config['layers'],
             hidden_dim=config['hidden_dim'],
-            num_epochs=3,
+            num_epochs=1,
             batch_size=16,
             save_results=False
         )
