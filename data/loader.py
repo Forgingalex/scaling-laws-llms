@@ -1,7 +1,7 @@
-from datasets import load_dataset
 from torch.utils.data import Dataset, DataLoader
 from transformers import GPT2Tokenizer
 import torch
+import requests
 
 
 class TextDataset(Dataset):
@@ -20,8 +20,9 @@ class TextDataset(Dataset):
 
 
 def get_tiny_shakespeare_loaders(batch_size=32, block_size=512, train_split=0.9):
-    dataset = load_dataset("tiny_shakespeare", split="train")
-    text = dataset['text'][0]
+    url = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
+    response = requests.get(url)
+    text = response.text
     
     tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
     tokenizer.pad_token = tokenizer.eos_token
