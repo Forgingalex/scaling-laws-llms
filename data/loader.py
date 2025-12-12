@@ -4,22 +4,27 @@ import torch
 import requests
 
 
-class TextDataset(Dataset):
-    def __init__(self, token_ids, block_size=512):
-        self.token_ids = token_ids
+class ChunkedTextDataset(Dataset):
+    def __init__(self, token_ids, block_size=128, stride=128):
         self.block_size = block_size
+        self.chunks = []
+        
+        for i in range(0, len(token_ids) - block_size, stride):
+            chunk = token_ids[i:i + block_size + 1]
+            if len(chunk) == block_size + 1:
+                self.chunks.append(chunk)
     
     def __len__(self):
-        return len(self.token_ids) - self.block_size
+        return len(self.chunks)
     
     def __getitem__(self, idx):
-        chunk = self.token_ids[idx:idx + self.block_size + 1]
-        x = chunk[:-1]
-        y = chunk[1:]
-        return torch.tensor(x, dtype=torch.long), torch.tensor(y, dtype=torch.long)
+        chunk = self.chunks[idx]
+        x = torch.tensor(chunk[:-1], dtype=torch.long)
+        y = torch.tensor(chunk[1:], dtype=torch.long)
+        return x, y
 
 
-def get_tiny_shakespeare_loaders(batch_size=32, block_size=512, train_split=0.9):
+def get_tiny_shakespeare_loaders(batch_size=8, block_size=128, max_tokens=100000, train_split=0.9):
     url = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
     response = requests.get(url)
     text = response.text
@@ -29,12 +34,15 @@ def get_tiny_shakespeare_loaders(batch_size=32, block_size=512, train_split=0.9)
     
     token_ids = tokenizer.encode(text)
     
+    if len(token_ids) > max_tokens:
+        token_ids = token_ids[:max_tokens]
+    
     split_idx = int(len(token_ids) * train_split)
     train_ids = token_ids[:split_idx]
     val_ids = token_ids[split_idx:]
     
-    train_dataset = TextDataset(train_ids, block_size)
-    val_dataset = TextDataset(val_ids, block_size)
+    train_dataset = ChunkedTextDataset(train_ids, block_size=block_size, stride=block_size)
+    val_dataset = ChunkedTextDataset(val_ids, block_size=block_size, stride=block_size)
     
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)

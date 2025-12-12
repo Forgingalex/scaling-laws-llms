@@ -7,9 +7,9 @@ from train.train_model import train_model
 
 
 configs = [
-    {"layers": 2, "hidden_dim": 64},
-    {"layers": 4, "hidden_dim": 128},
-    {"layers": 6, "hidden_dim": 256}
+    {"layers": 2, "hidden_dim": 32},
+    {"layers": 4, "hidden_dim": 64},
+    {"layers": 6, "hidden_dim": 128}
 ]
 
 
@@ -41,7 +41,8 @@ def main():
             num_layers=config['layers'],
             hidden_dim=config['hidden_dim'],
             num_epochs=1,
-            batch_size=16,
+            batch_size=8,
+            block_size=128,
             save_results=False
         )
         new_results.append(results)
@@ -64,4 +65,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
